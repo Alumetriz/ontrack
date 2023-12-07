@@ -1,51 +1,39 @@
 <script setup>
-import { CheckCircleIcon } from '@heroicons/vue/24/solid'
-import { ClockIcon, ListBulletIcon, ChartBarIcon } from '@heroicons/vue/24/outline'
+import { PAGE__ACTIVITIES, PAGE__PROGRESS, PAGE__TIMELINE } from '@/constans.js'
+import { ref } from 'vue'
+
+const normalizePageHash = () => {
+  const hash = window.location.hash.slice(1)
+
+  if ([PAGE__ACTIVITIES, PAGE__PROGRESS, PAGE__TIMELINE].includes(hash)) {
+    return hash
+  }
+
+  window.location.hash = PAGE__TIMELINE
+  return PAGE__TIMELINE
+}
+
+const activePage = ref(normalizePageHash())
+
+const goTo = (page) => {
+  activePage.value = page
+}
 </script>
 
 <template>
-  <header class="sticky top-0 flex items-center justify-between border-b bg-white p-3">
-    <a href="#">
-      <img src="@/assets/img/logo.png" alt="Logo" class="h-9" />
-    </a>
+  <the-header
+    :active-page="activePage"
+    @go-to-timeline="goTo(PAGE__TIMELINE)"
+    @go-to-progress="goTo(PAGE__PROGRESS)"
+  ></the-header>
 
-    <a href="#" class="text-sm">
-      <div class="flex items-center gap-1">
-        Day complete!
-        <CheckCircleIcon class="h-9 text-green-500" />
-      </div>
+  <main class="flex grow flex-col">
+    <the-timeline v-show="activePage === PAGE__TIMELINE"></the-timeline>
+    <the-activities v-show="activePage === PAGE__ACTIVITIES"></the-activities>
+    <the-progress v-show="activePage === PAGE__PROGRESS"></the-progress>
+  </main>
 
-      <div class="flex items-center gap-1">
-        <div>Progress: <span class="font-mono">20%</span></div>
-        <div class="h-3 w-3 rounded-full bg-red-500"></div>
-      </div>
-    </a>
-  </header>
-
-  <main class="flex grow flex-col"></main>
-
-  <nav class="sticky bottom-0 z-10 bg-white">
-    <ul class="flex items-center border-t justify-around">
-      <li class="flex-1">
-        <a class="flex flex-col items-center p-2 text-xs capitalize" href="#timeline">
-          <ClockIcon class="h-6 w-6" />
-          timeline
-        </a>
-      </li>
-      <li class="flex-1">
-        <a class="flex flex-col items-center p-2 text-xs capitalize" href="#activities">
-          <ListBulletIcon class="h-6 w-6" />
-          activities
-        </a>
-      </li>
-      <li class="flex-1">
-        <a class="flex flex-col items-center p-2 text-xs capitalize" href="#progress">
-          <ChartBarIcon class="h-6 w-6" />
-          progress
-        </a>
-      </li>
-    </ul>
-  </nav>
+  <the-navigation :active-page="activePage" @navigate="goTo($event)"></the-navigation>
 </template>
 
 <style scoped></style>
